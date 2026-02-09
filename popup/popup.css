@@ -185,6 +185,24 @@ body {
   color: #a50e0e;
 }
 
+/* Settings checkbox */
+.settings-section {
+  padding: 8px 16px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #3c4043;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  accent-color: #4285f4;
+}
+
 /* Empty state */
 .empty-state {
   font-size: 11px;

@@ -33,10 +33,20 @@
   }
 
   /**
+   * Check if the current page is a YouTube search results page.
+   * On search pages, the user explicitly searched — don't filter unless
+   * filterSearch setting is enabled.
+   */
+  function isSearchPage() {
+    return location.pathname === '/results';
+  }
+
+  /**
    * Process all unprocessed video elements on the page.
    */
   async function processVideos() {
     if (!settings.enabled || isProcessing) return;
+    if (isSearchPage() && !settings.filterSearch) return;
     isProcessing = true;
 
     try {

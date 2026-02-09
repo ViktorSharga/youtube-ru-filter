@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube RU Filter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>YouTube RU Filter</h1>
+    <label class="toggle">
+      <input type="checkbox" id="enabled-toggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <span id="stats-count">0 videos filtered</span>
+    <button id="reset-stats" class="btn-small" title="Reset counter">Reset</button>
+  </div>
+
+  <!-- Whitelist -->
+  <div class="section">
+    <h2>Whitelisted Channels</h2>
+    <p class="hint">These channels are never filtered.</p>
+    <div class="input-row">
+      <input type="text" id="whitelist-input" placeholder="Channel name">
+      <button id="whitelist-add" class="btn-add">Add</button>
+    </div>
+    <ul id="whitelist-list" class="channel-list"></ul>
+  </div>
+
+  <!-- Blocklist -->
+  <div class="section">
+    <h2>Blocked Channels</h2>
+    <p class="hint">These channels are always hidden.</p>
+    <div class="input-row">
+      <input type="text" id="blocklist-input" placeholder="Channel name">
+      <button id="blocklist-add" class="btn-add">Add</button>
+    </div>
+    <ul id="blocklist-list" class="channel-list"></ul>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #4285f4;
+  color: #fff;
+}
+
+.header h1 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle input:checked + .slider {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.toggle input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #e8f0fe;
+  font-size: 12px;
+  color: #3c4043;
+}
+
+.btn-small {
+  background: none;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+.btn-small:hover {
+  background: #f1f3f4;
+}
+
+/* Sections */
+.section {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.section h2 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.hint {
+  font-size: 11px;
+  color: #80868b;
+  margin-bottom: 8px;
+}
+
+/* Input row */
+.input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 12px;
+  outline: none;
+}
+
+.input-row input:focus {
+  border-color: #4285f4;
+}
+
+.btn-add {
+  padding: 6px 12px;
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-add:hover {
+  background: #3367d6;
+}
+
+/* Channel list */
+.channel-list {
+  list-style: none;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.channel-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.channel-list li:last-child {
+  border-bottom: none;
+}
+
+.channel-list .channel-name {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.channel-list .btn-remove {
+  background: none;
+  border: none;
+  color: #d93025;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.channel-list .btn-remove:hover {
+  color: #a50e0e;
+}
+
+/* Empty state */
+.empty-state {
+  font-size: 11px;
+  color: #9aa0a6;
+  font-style: italic;
+  padding: 4px 0;
+}

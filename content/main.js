@@ -46,8 +46,9 @@
    */
   async function processVideos() {
     if (!settings.enabled || isProcessing) return;
-    if (isSearchPage() && !settings.filterSearch) return;
     isProcessing = true;
+
+    const onSearchPage = isSearchPage();
 
     try {
       const unprocessed = RuFilterExtractor.findUnprocessedVideos();
@@ -62,6 +63,16 @@
         if (!metadata) continue;
 
         processedElements.add(container);
+
+        // On search pages without filterSearch, only apply blocklist
+        // (skip language detection — user actively searched for this content)
+        if (onSearchPage && !settings.filterSearch) {
+          if (metadata.channelName && blocklist[metadata.channelName]) {
+            RuFilterActions.hideVideo(metadata.element);
+            filteredCount++;
+          }
+          continue;
+        }
 
         const decision = await RuFilterDetector.shouldFilter(
           metadata.title,

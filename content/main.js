@@ -132,6 +132,11 @@
       console.error('[RuFilter] Error processing videos:', err);
     } finally {
       isProcessing = false;
+      // Elements may have arrived during processing (MutationObserver callbacks
+      // were rejected because isProcessing was true). Schedule a follow-up scan.
+      if (settings.enabled && RuFilterExtractor.findUnprocessedVideos().length > 0) {
+        setTimeout(processVideos, 200);
+      }
     }
   }
 

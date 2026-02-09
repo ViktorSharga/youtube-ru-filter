@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const blocklistInput = document.getElementById('blocklist-input');
   const blocklistAddBtn = document.getElementById('blocklist-add');
   const blocklistList = document.getElementById('blocklist-list');
-  const filterSearchToggle = document.getElementById('filter-search-toggle');
 
   // --- Load initial data ---
   const { settings = { enabled: true } } = await chrome.storage.sync.get({ settings: { enabled: true } });
@@ -25,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const { stats = { totalFiltered: 0 } } = await chrome.storage.local.get({ stats: { totalFiltered: 0 } });
 
   enabledToggle.checked = settings.enabled;
-  filterSearchToggle.checked = settings.filterSearch || false;
   updateStats(stats.totalFiltered);
   renderList(whitelistList, whitelist, 'whitelist');
   renderList(blocklistList, blocklist, 'blocklist');
@@ -35,11 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   enabledToggle.addEventListener('change', async () => {
     const { settings: current } = await chrome.storage.sync.get({ settings: {} });
     await chrome.storage.sync.set({ settings: { ...current, enabled: enabledToggle.checked } });
-  });
-
-  filterSearchToggle.addEventListener('change', async () => {
-    const { settings: current } = await chrome.storage.sync.get({ settings: {} });
-    await chrome.storage.sync.set({ settings: { ...current, filterSearch: filterSearchToggle.checked } });
   });
 
   resetStatsBtn.addEventListener('click', async () => {
@@ -69,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (changes.settings) {
         const s = changes.settings.newValue || { enabled: true };
         enabledToggle.checked = s.enabled;
-        filterSearchToggle.checked = s.filterSearch || false;
       }
     }
     if (area === 'local' && changes.stats) {

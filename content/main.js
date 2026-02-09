@@ -33,12 +33,48 @@
   }
 
   /**
-   * Check if the current page is a YouTube search results page.
-   * On search pages, the user explicitly searched — don't filter unless
-   * filterSearch setting is enabled.
+   * Detect whether the current YouTube search query is in Russian.
+   *
+   * Conservative bias: only returns true when we're confident the query
+   * is Russian. This is the opposite bias from video-title detection —
+   * uncertain Cyrillic queries default to "not Russian" so we still filter.
+   *
+   * Examples:
+   *   "iPhone 17 Pro Max"   → false (English, filter Russian results)
+   *   "огляд iPhone"        → false (ambiguous Cyrillic, filter to be safe)
+   *   "Максим Кац"          → true  (chrome.i18n detects Russian)
+   *   "как готовить борщ"    → true  (Russian-only char ъ? no, but chrome.i18n detects ru)
    */
-  function isSearchPage() {
-    return location.pathname === '/results';
+  async function isSearchQueryRussian() {
+    if (location.pathname !== '/results') return false;
+    const params = new URLSearchParams(location.search);
+    const query = (params.get('search_query') || '').trim();
+    if (!query) return false;
+
+    // Ukrainian-unique chars in query → user is searching in Ukrainian
+    if (/[іІїЇєЄґҐ]/.test(query)) return false;
+
+    // Russian-unique chars (ёыэъ) → confidently Russian
+    if (/[ёЁыЫэЭъЪ]/.test(query)) return true;
+
+    // No Cyrillic at all → not Russian (English, etc.)
+    if (!/[\u0400-\u04FF]/.test(query)) return false;
+
+    // Ambiguous Cyrillic — ask chrome.i18n for a confident answer
+    return new Promise((resolve) => {
+      try {
+        chrome.i18n.detectLanguage(query, (result) => {
+          if (chrome.runtime.lastError || !result?.languages?.length) {
+            resolve(false); // uncertain → treat as non-Russian → filter
+            return;
+          }
+          const top = result.languages[0];
+          resolve(top.language === 'ru' && top.percentage >= 60);
+        });
+      } catch {
+        resolve(false);
+      }
+    });
   }
 
   /**
@@ -48,7 +84,10 @@
     if (!settings.enabled || isProcessing) return;
     isProcessing = true;
 
-    const onSearchPage = isSearchPage();
+    // On search pages, check the query language once for the whole batch
+    const onSearchPage = location.pathname === '/results';
+    const russianQuery = onSearchPage ? await isSearchQueryRussian() : false;
+    const skipLanguageFilter = onSearchPage && russianQuery;
 
     try {
       const unprocessed = RuFilterExtractor.findUnprocessedVideos();
@@ -64,9 +103,8 @@
 
         processedElements.add(container);
 
-        // On search pages without filterSearch, only apply blocklist
-        // (skip language detection — user actively searched for this content)
-        if (onSearchPage && !settings.filterSearch) {
+        // If user searched in Russian, only apply blocklist (not language filter)
+        if (skipLanguageFilter) {
           if (metadata.channelName && blocklist[metadata.channelName]) {
             RuFilterActions.hideVideo(metadata.element);
             filteredCount++;

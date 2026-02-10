@@ -5,8 +5,7 @@
   "description": "Silently removes Russian-language videos from YouTube while preserving Ukrainian content.",
   "permissions": [
     "storage",
-    "contextMenus",
-    "alarms"
+    "contextMenus"
   ],
   "host_permissions": [
     "*://*.youtube.com/*"

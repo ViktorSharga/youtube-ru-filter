@@ -2,10 +2,9 @@
  * Background service worker for the YouTube Russian-Language Filter.
  *
  * Handles:
- * - Extension installation/update: initialize default storage
+ * - Extension installation: initialize default storage
  * - Context menu creation: "Whitelist this channel" / "Block this channel"
  * - Context menu clicks: message content script for channel name, then update storage
- * - Cache cleanup alarm: purge expired detection cache entries every 24h
  */
 
 // --- Installation ---
@@ -20,11 +19,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     });
     await chrome.storage.local.set({
       stats: { totalFiltered: 0 },
-      detectionCache: {},
     });
-  } else if (details.reason === 'update') {
-    // Clear detection cache on update so new detection logic takes effect
-    await chrome.storage.local.set({ detectionCache: {} });
   }
 
   // Create context menus (re-created on every install/update)
@@ -42,11 +37,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       contexts: ['link'],
       documentUrlPatterns: ['*://*.youtube.com/*'],
     });
-  });
-
-  // Set up cache cleanup alarm
-  chrome.alarms.create('rufilter-cache-cleanup', {
-    periodInMinutes: 24 * 60, // Every 24 hours
   });
 });
 
@@ -89,23 +79,3 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
-// --- Cache Cleanup Alarm ---
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name !== 'rufilter-cache-cleanup') return;
-
-  const { detectionCache = {} } = await chrome.storage.local.get({ detectionCache: {} });
-  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  let changed = false;
-
-  for (const key of Object.keys(detectionCache)) {
-    if (detectionCache[key].timestamp < cutoff) {
-      delete detectionCache[key];
-      changed = true;
-    }
-  }
-
-  if (changed) {
-    await chrome.storage.local.set({ detectionCache });
-  }
-});

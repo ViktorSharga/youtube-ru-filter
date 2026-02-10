@@ -44,9 +44,11 @@ const RuFilterExtractor = (() => {
     if (titleEl) {
       const text = titleEl.textContent.trim();
       if (text) return text;
-      // For Shorts, title might be in aria-label
+      // aria-label / title attribute fallbacks (works even when text is in shadow DOM)
       const ariaLabel = titleEl.getAttribute('aria-label');
       if (ariaLabel) return ariaLabel.trim();
+      const titleAttr = titleEl.getAttribute('title');
+      if (titleAttr) return titleAttr.trim();
     }
     // Shorts fallback: look for the overlay title
     const shortsTitle = container.querySelector('.shortsLockupViewModelHostOutsideMetadataTitle span');

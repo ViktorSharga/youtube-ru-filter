@@ -78,10 +78,26 @@
   }
 
   /**
+   * Check if the current page is a channel page.
+   * Channel pages are exempt from filtering — the user navigated there intentionally.
+   */
+  function isChannelPage() {
+    const path = location.pathname;
+    return path.startsWith('/@') ||
+           path.startsWith('/channel/') ||
+           path.startsWith('/c/') ||
+           path.startsWith('/user/');
+  }
+
+  /**
    * Process all unprocessed video elements on the page.
    */
   async function processVideos() {
     if (!settings.enabled || isProcessing) return;
+
+    // Don't filter on channel pages — user navigated there intentionally
+    if (isChannelPage()) return;
+
     isProcessing = true;
 
     // On search pages, check the query language once for the whole batch
@@ -91,6 +107,10 @@
 
     try {
       const unprocessed = RuFilterExtractor.findUnprocessedVideos();
+      if (unprocessed.length > 0) {
+        console.log('[RuFilter] Scan:', unprocessed.length, 'unprocessed videos',
+          onSearchPage ? '(search, skipLang=' + skipLanguageFilter + ')' : '(feed)');
+      }
       if (unprocessed.length === 0) return;
 
       let filteredCount = 0;
@@ -108,6 +128,7 @@
           if (metadata.channelName && blocklist[metadata.channelName]) {
             RuFilterActions.hideVideo(metadata.element);
             filteredCount++;
+            console.log('[RuFilter] BLOCK (blocklist):', metadata.channelName);
           }
           continue;
         }
@@ -123,6 +144,8 @@
           RuFilterActions.hideVideo(metadata.element);
           filteredCount++;
         }
+        console.log('[RuFilter]', decision, '|',
+          metadata.title.substring(0, 50), '|', metadata.channelName);
       }
 
       if (filteredCount > 0) {
@@ -242,6 +265,13 @@
 
       // Initial scan
       await processVideos();
+
+      // Periodic safety-net scan: catches videos missed by MutationObserver
+      // (e.g., YouTube SPA navigation edge cases, lazy rendering).
+      // Low cost: processVideos() returns immediately if nothing is unprocessed.
+      setInterval(() => {
+        if (settings.enabled) processVideos();
+      }, 3000);
     } catch (err) {
       console.error('[RuFilter] Initialization error:', err);
     }
